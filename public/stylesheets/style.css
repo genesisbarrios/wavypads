@@ -45,8 +45,14 @@ footer{
     background-color:white;
     box-shadow: 0px 2px 3px grey;
     margin:10px;
+    color:black;
+    overflow:auto;
 }
 
 p{
     text-align:center;
+}
+
+.keyMapping{
+    margin-top:45%;
 }
