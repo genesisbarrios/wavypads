@@ -1,16 +1,18 @@
-//Author:Genesis Barrios
-//09/2020
+// Author: Genesis Barrios
+// Start Date: 09-2020
+
+var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 //this will be in the settings table. 
 //whenever the user saves a session or song 
 //this data will be saved together in another table
 var gain = 5;
-var reverb = 5;
-var eq = 10;
-var decay = 4;
+var reverb = 1000;
+var eq = 20000;
+var decay = 1;
 
-var root; // let user choose
-var familyOfTriads = [[0,4,7],[0,3,7],[0,3,6],[0,4,8]];
+var root = 0; //let user choose
+//var familyOfTriads = [[0,4,7],[0,3,7],[0,3,6],[0,4,8]];
 
 //Tone.js objects
 //Synth
@@ -19,6 +21,7 @@ var synth = new Tone.Synth().toMaster();
 //Chord PolySYnth
 var synth2 = new Tone.PolySynth(3, Tone.Synth, {
     oscillator : {
+        volume:gain,
       type : "sine"
     }
   });
@@ -35,9 +38,10 @@ var freeverb = new Tone.Freeverb();
 freeverb.dampening.value = reverb;
 
 // synth->filter->reverb->master
-//synth2.connect(filter);  
-synth2.connect(freeverb);
-freeverb.connect(Tone.Master);
+synth2.connect(filter);  
+filter.connect(freeverb);
+//freeverb.connect(Tone.Master);
+freeverb.toMaster();
 
 //setters
 function setGain(num){
@@ -46,19 +50,21 @@ function setGain(num){
 }
 
 function setReverb(num){
-    reverb = Math.round(num) * 100;
+    reverb = Math.round(num) * 100 / 2;
     freeverb.dampening.value = reverb;
-    console.log(reverb);
 }
 
 function setEQ(num){
-    eq = Math.round(num * 100);
-    console.log(eq)
+    eq = Math.round(num * 100); //+ 5000;
+    
+    filter.set({
+        frequency: eq,
+        type: "lowpass"
+    });
 }
 
 function setDecay(num){
     decay = Math.round(num / 10);
-    console.log(decay);
 }
 
 var keyToNumber = {
@@ -79,22 +85,57 @@ var keyToNumber = {
 //Key Press Listener
 document.addEventListener('keypress', getKey);
 
+//power button event listener
+var onoff = document.getElementById("myonoffswitch");
+
+//keyInput event listener
+var keyInput = document.getElementById("keyInput");
+
 //knobs event listeners
 var knob1 = document.getElementById("knob1").children[0];//Decay
 var knob2 = document.getElementById("knob2").children[0];//EQ
 var knob3 = document.getElementById("knob3").children[0];//Reverb
 var knob4 = document.getElementById("knob4").children[0];//Gain
 
+
+//attach a click listener to a play button
+document.querySelector('button')?.addEventListener('click', async () => {
+	await Tone.start()
+	console.log('audio is ready')
+})
+
+onoff.addEventListener('change', async() => {
+    if(onoff.checked == true){
+        setEQ(20000);
+        setReverb(reverb);
+        setGain(5);
+        await Tone.start();
+        console.log('Tone.js started');
+    }else{
+        //Tone.stop();
+        //console.log('Tone.js stopped');
+    }
+});
+
+
+keyInput.addEventListener('change', function() {
+   root = keyInput.value;
+   console.log('root set to: ' + notes[root]);
+});
+
 knob1.addEventListener('change', function() {
     setDecay(knob1.value)
+    console.log('decay set to ' + decay);
 });
 
 knob2.addEventListener('change', function() {
     setEQ(knob2.value)
+    console.log('eq set to ' + eq);
 });
 
 knob3.addEventListener('change', function() {
     setReverb(knob3.value)
+    console.log('reverb set to ' + reverb);
 });
 
 knob4.addEventListener('change', function() {
@@ -107,7 +148,7 @@ var pads = document.querySelectorAll(".pad");
 for (const pad of pads) {
     pad.addEventListener('click', function(event) {
         console.log('pad clicked');
-      playSound(pad.id.replace("pad", ""));
+        playSound(pad.id.replace("pad", ""));
     });
 }
 
@@ -120,12 +161,12 @@ function getKey(e) {
 //Convert Key to Num and playSound()
 function keyPressed(code){
     var padNum = keyToNumber[code.replace("Key", "").toLowerCase()];
+    console.log('pad key press:' + code)
     playSound(padNum);
 }
 
 //todo: make key input on midi pad display alphabet, but value be int for array indexing
 function getNoteFromNum(num, key){
-    var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
     return notes[key + num % 12 - 1];//key is our starting note. 
                                     //num is the number of the note(pad) 
@@ -136,7 +177,6 @@ function getNoteFromNum(num, key){
 function getChordFromNum_MajorScale(num, key, octave){
     //todo: fix last note should be in next octave?
 
-    var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     var padNumToNotesIndex = {//pad number corresponds to notes in scale which are indexed from notes array.
         1: 0,
         2: 2,
@@ -146,10 +186,13 @@ function getChordFromNum_MajorScale(num, key, octave){
         6: 8,
         7: 9,
         8: 0
-      };
+    };
 
     var notesIndex = padNumToNotesIndex[num];
-    var note = notes[key + notesIndex % 12];
+    key = 1 * key;
+    notesIndex = 1 * notesIndex;
+
+    var note = notes[(key + notesIndex) % 12];
     
     if(num == 1 || num == 4 || num == 5 || num == 8){//major chords
         var chord = [note + octave, notes[(key + notesIndex + 4) % 12] + octave, notes[(key + notesIndex + 7) % 12] + octave];
@@ -171,9 +214,8 @@ function getChordFromNum_MajorScale(num, key, octave){
 //todo: set eq reverb gain
 function playSound(num){
     var octave = 4;
-    var chord = getChordFromNum_MajorScale(num, 0, octave);
-    console.log(chord);
-    console.log('play chord');
+    var chord = getChordFromNum_MajorScale(num, root, octave);
+    console.log('play chord ' + chord);
     synth2.triggerAttackRelease(chord, decay + 'n');
 }
 

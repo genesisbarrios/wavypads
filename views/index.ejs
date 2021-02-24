@@ -35,17 +35,34 @@
 
         <div id="menu" class="container">
 
-          <div class="row">
+          <div class="row" style="padding-top:10px;">
 
-            <div class="col-3" id="monoOrPoly">
+            <div class="col-2">
+              <div class="onoffswitch" id="monoOrPoly">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" tabindex="0">
+                <label class="onoffswitch-label" for="myonoffswitch">
+                    <span class="onoffswitch-inner"></span>
+                    <span class="onoffswitch-switch"></span>
+                </label>
+              </div>
+            </div>
+            <div class="col-2">
+              <% console.log(notes); %>
+              <div style="background-color:grey; color:white; text-align:center;">Key</div>
+              <select class="custom-select" id="keyInput">
+                <% if (notes.length) { %>
+                    <% notes.forEach((note, i) => {%>
+                        <option value="<%=i%>"><%= note %></option>
+                      <% }) %>
+                  <% } %>
+              </select>
+            </div>
+
+            <div class="col-2" id="soundSelection">
               
             </div>
 
-            <div class="col-3" id="soundSelection">
-              
-            </div>
-
-            <div class="col-3" id="octaveUpDown">
+            <div class="col-2" id="octaveUpDown">
               
             </div>
 
@@ -84,6 +101,8 @@
           </div>
 
         </div>
+
+        <div class="row" style="height:50px;"></div>
 
         <div id="pads" class="container">
 
@@ -132,29 +151,6 @@
               </div>
             </div>
           </div>
-          
-          <!-- <div class="row">
-            <div class="col-3">
-              <div class="pad" id="pad9">
-                <p class="keyMapping">x</p>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="pad" id="pad10">
-                <p class="keyMapping">c</p>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="pad" id="pad11">
-                <p class="keyMapping">v</p>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="pad" id="pad12">
-                <p class="keyMapping">b</p>
-              </div>
-            </div>
-          </div> -->
           
         </div>
       </div>
