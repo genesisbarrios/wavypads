@@ -3,6 +3,8 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link href="/stylesheets/bootstrap-4.0.0-dist/css/bootstrap.min.css" type="text/css" rel="stylesheet"></head>
   </head>
   <body>
@@ -47,48 +49,54 @@
               </div>
             </div>
             <div class="col-2">
-              <div style="background-color:grey; color:white; text-align:center;">Key</div>
-              <select class="custom-select" id="keyInput">
-                <% if (notes.length) { %>
-                    <% notes.forEach((note, i) => {%>
-                        <option value="<%=i%>"><%= note %></option>
-                      <% }) %>
-                  <% } %>
-              </select>
+              <div style=" color:white; text-align:center;">Key</div>
+              <div class="select-box">
+                <select class="custom-select" id="keyInput">
+                  <% if (notes.length) { %>
+                      <% notes.forEach((note, i) => {%>
+                          <option value="<%=i%>"><%= note %></option>
+                        <% }) %>
+                    <% } %>
+                </select>
+              </div>
             </div>
 
             <div class="col-2">
-              <div style="background-color:grey; color:white; text-align:center;">Octave</div>
-              <select class="custom-select" id="octaveInput">
-                <% if (octaves.length) { %>
-                    <% octaves.forEach((octave) => {%>
-                      <%if(octave == def){%>
-                        <option selected><%= octave %></option>
-                      <% } else{%>
-                        <option><%= octave %></option>
-                        <% }%>
-                      <% }) %>
-                  <% } %>
-              </select>
+              <div style="color:white; text-align:center;">Octave</div>
+              <div class="select-box">
+                <select class="custom-select" id="octaveInput">
+                  <% if (octaves.length) { %>
+                      <% octaves.forEach((octave) => {%>
+                        <%if(octave == def){%>
+                          <option selected><%= octave %></option>
+                        <% } else{%>
+                          <option><%= octave %></option>
+                          <% }%>
+                        <% }) %>
+                    <% } %>
+                </select>
+              </div>
             </div>
 
             <div class="col-3" id="synthSelection">
-              <div style="background-color:grey; color:white; text-align:center;">Synth</div>
-              <select class="custom-select" id="synthInput">
-                <% if (synths.length) { %>
-                    <% synths.forEach((synth) => {%>
-                      <%if(synth == defaultSynth){%>
-                        <option selected><%= synth %></option>
-                      <% } else{%>
-                        <option><%= synth %></option>
-                        <% }%>
-                      <% }) %>
-                  <% } %>
-              </select>
+              <div style="color:white; text-align:center;">Synth</div>
+              <div class="select-box">
+                <select class="custom-select" id="synthInput">
+                  <% if (synths.length) { %>
+                      <% synths.forEach((synth) => {%>
+                        <%if(synth == defaultSynth){%>
+                          <option selected><%= synth %></option>
+                        <% } else{%>
+                          <option><%= synth %></option>
+                          <% }%>
+                        <% }) %>
+                    <% } %>
+                </select>
+              </div>
             </div>
 
-            <div class="col-2" id="Brand">
-              <h5>Wavy Pads</h5>  
+            <div class="col-3" id="Brand">
+              <h2 class="padBrand">Wavy Pads</h2>  
             </div>
 
           </div>

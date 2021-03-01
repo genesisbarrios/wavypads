@@ -201,7 +201,8 @@ knob4.addEventListener('change', function() {
 var pads = document.querySelectorAll(".pad");
 for (const pad of pads) {
     pad.addEventListener('click', function(event) {
-        console.log('pad clicked');
+        event.target.classList.add('glow');
+        setTimeout(function() { event.target.classList.remove('glow'); }, 500);
         playSound(pad.id.replace("pad", ""));
     });
 }
@@ -215,7 +216,9 @@ function getKey(e) {
 //Convert Key to Num and playSound()
 function keyPressed(code){
     var padNum = keyToNumber[code.replace("Key", "").toLowerCase()];
-    console.log('pad key press:' + code)
+    var pad = document.getElementById('pad'+padNum);
+    pad.classList.add('glow');
+    setTimeout(function() { pad.classList.remove('glow'); }, 500);
     playSound(padNum);
 }
 
@@ -285,17 +288,17 @@ function playSound(num){
     var note = getNoteFromNum_MajorScale(num, root, octave);
 
     if(synthOption == 'Synth'){
+        console.log(chord);
         synth.triggerAttackRelease(chord, decay + 'n');
-        console.log('synth trigger')
     }else if(synthOption == 'FM Synth'){
+        console.log(chord);
         FMSynth.triggerAttackRelease(chord, decay + 'n');
-        console.log('FMSynth trigger')
     }else if(synthOption == 'AM Synth'){
+        console.log(chord);
         AMSynth.triggerAttackRelease(chord, decay + 'n');
-        console.log('AMSynth trigger')
     }else if(synthOption == 'Mono Synth'){
+        console.log(note);
         MonoSynth.triggerAttackRelease(note, decay + 'n');
-        console.log('Mono Synth trigger')
     }
     
 }
