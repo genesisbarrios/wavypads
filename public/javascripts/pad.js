@@ -1,6 +1,8 @@
 // Author: Genesis Barrios
 // Start Date: 09-2020
 
+var octave = 4;
+var synthOption = 'Synth';
 var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 //this will be in the settings table. 
@@ -15,17 +17,40 @@ var root = 0; //let user choose
 //var familyOfTriads = [[0,4,7],[0,3,7],[0,3,6],[0,4,8]];
 
 //Tone.js objects
-//Synth
-var synth = new Tone.Synth().toMaster();
 
-//Chord PolySYnth
-var synth2 = new Tone.PolySynth(3, Tone.Synth, {
+//FM Synth
+var FMSynth = new Tone.PolySynth(3, Tone.FMSynth, {
     oscillator : {
         volume:gain,
       type : "sine"
     }
   });
 
+//FM Synth
+var AMSynth = new Tone.PolySynth(3, Tone.AMSynth, {
+    oscillator : {
+        volume:gain,
+      type : "sine"
+    }
+  });
+
+//Mono Synth
+var MonoSynth = new Tone.PolySynth(3, Tone.MonoSynth, {
+    oscillator : {
+        volume:gain,
+      type : "sine"
+    }
+  });
+
+//Default PolySynth
+var synth = new Tone.PolySynth(3, Tone.Synth, {
+    oscillator : {
+        volume:gain,
+      type : "sine"
+    }
+  });
+
+//-------FILTERS----------
 //EQ
 const filter = new Tone.Filter();
 filter.set({
@@ -37,8 +62,25 @@ filter.set({
 var freeverb = new Tone.Freeverb();
 freeverb.dampening.value = reverb;
 
+
+//-------OUTPUT CHAIN-----------
 // synth->filter->reverb->master
-synth2.connect(filter);  
+synth.connect(filter);  
+filter.connect(freeverb);
+//freeverb.connect(Tone.Master);
+freeverb.toMaster();
+
+FMSynth.connect(filter);  
+filter.connect(freeverb);
+//freeverb.connect(Tone.Master);
+freeverb.toMaster();
+
+AMSynth.connect(filter);  
+filter.connect(freeverb);
+//freeverb.connect(Tone.Master);
+freeverb.toMaster();
+
+MonoSynth.connect(filter);  
 filter.connect(freeverb);
 //freeverb.connect(Tone.Master);
 freeverb.toMaster();
@@ -82,6 +124,8 @@ var keyToNumber = {
     "b": 12
   };
 
+//-----------INPUT LISTENERS---------------
+
 //Key Press Listener
 document.addEventListener('keypress', getKey);
 
@@ -91,6 +135,12 @@ var onoff = document.getElementById("myonoffswitch");
 //keyInput event listener
 var keyInput = document.getElementById("keyInput");
 
+//octaveInput event listener
+var octaveInput = document.getElementById("octaveInput");
+
+//synthInput event listener
+var synthInput = document.getElementById("synthInput");
+
 //knobs event listeners
 var knob1 = document.getElementById("knob1").children[0];//Decay
 var knob2 = document.getElementById("knob2").children[0];//EQ
@@ -98,12 +148,7 @@ var knob3 = document.getElementById("knob3").children[0];//Reverb
 var knob4 = document.getElementById("knob4").children[0];//Gain
 
 
-//attach a click listener to a play button
-document.querySelector('button')?.addEventListener('click', async () => {
-	await Tone.start()
-	console.log('audio is ready')
-})
-
+//---------EVENT LISTENERS-------------
 onoff.addEventListener('change', async() => {
     if(onoff.checked == true){
         setEQ(20000);
@@ -117,10 +162,19 @@ onoff.addEventListener('change', async() => {
     }
 });
 
-
 keyInput.addEventListener('change', function() {
    root = keyInput.value;
    console.log('root set to: ' + notes[root]);
+});
+
+octaveInput.addEventListener('change', function(){
+    octave = octaveInput.value;
+    console.log('octave set to: ' + octave);
+});
+
+synthInput.addEventListener('change', function(){
+    synthOption = synthInput.value;
+    console.log('synth option: ' + synthOption);
 });
 
 knob1.addEventListener('change', function() {
@@ -165,7 +219,6 @@ function keyPressed(code){
     playSound(padNum);
 }
 
-//todo: make key input on midi pad display alphabet, but value be int for array indexing
 function getNoteFromNum(num, key){
 
     return notes[key + num % 12 - 1];//key is our starting note. 
@@ -183,8 +236,8 @@ function getChordFromNum_MajorScale(num, key, octave){
         3: 4,
         4: 5,
         5: 7,
-        6: 8,
-        7: 9,
+        6: 9,
+        7: 11,
         8: 0
     };
 
@@ -208,14 +261,42 @@ function getChordFromNum_MajorScale(num, key, octave){
     }
 }
 
-//play sound
-//todo: add input for octave for octave to parameters
-//todo: add key input from knob to parameters, and pass to getNoteFromNum() second parameter
-//todo: set eq reverb gain
+function getNoteFromNum_MajorScale(num, key, octave){
+    //todo: fix last note should be in next octave?
+
+    var padNumToNotesIndex = {//pad number corresponds to notes in scale which are indexed from notes array.
+        1: 0,
+        2: 2,
+        3: 4,
+        4: 5,
+        5: 7,
+        6: 9,
+        7: 11,
+        8: 0
+    };
+
+    var notesIndex = padNumToNotesIndex[num];
+    var note = notes[(key + notesIndex) % 12];
+    return (note + octave);
+}
+
 function playSound(num){
-    var octave = 4;
     var chord = getChordFromNum_MajorScale(num, root, octave);
-    console.log('play chord ' + chord);
-    synth2.triggerAttackRelease(chord, decay + 'n');
+    var note = getNoteFromNum_MajorScale(num, root, octave);
+
+    if(synthOption == 'Synth'){
+        synth.triggerAttackRelease(chord, decay + 'n');
+        console.log('synth trigger')
+    }else if(synthOption == 'FM Synth'){
+        FMSynth.triggerAttackRelease(chord, decay + 'n');
+        console.log('FMSynth trigger')
+    }else if(synthOption == 'AM Synth'){
+        AMSynth.triggerAttackRelease(chord, decay + 'n');
+        console.log('AMSynth trigger')
+    }else if(synthOption == 'Mono Synth'){
+        MonoSynth.triggerAttackRelease(note, decay + 'n');
+        console.log('Mono Synth trigger')
+    }
+    
 }
 
