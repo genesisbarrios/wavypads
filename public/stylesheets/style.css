@@ -6,6 +6,15 @@ body{
     height:10vh;
  }
 
+ .navbar-nav li a {
+    color:white;
+ }
+
+ .navbar-nav li a:hover {
+    color:white;
+    background-color:grey;
+}
+
 .navbar-brand, .padBrand{
     font-family: 'Bebas Neue', cursive !important;
 }
@@ -19,7 +28,7 @@ body{
     display: inline-block;
   }
   .select-box select {
-    width:100%;
+    width:110%;
     height:100%;
     outline: none;
   }
